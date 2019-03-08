@@ -1,6 +1,9 @@
 import sys
 import os
-sys.path.append(os.getcwd()[:-5])
+
+import argparse
+
+sys.path.append(os.getcwd())
 
 from src.timeseries.TimeSeriesLoader import uv_load
 
@@ -9,6 +12,7 @@ from  src.classification.BOSSEnsembleClassifier import *
 from  src.classification.BOSSVSClassifier import *
 from  src.classification.ShotgunEnsembleClassifier import *
 from  src.classification.ShotgunClassifier import *
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -34,22 +38,18 @@ prob_args = {
     "strict"       : True,
 }
 
-# --
-# Load problem
-
-X_train, X_test, y_train, y_test, ll_metric, ll_score, d3mds = load_problem(**prob_args)
 
 
 train, test = uv_load(args.base_path, args.prob_name)
 
-boss = BOSSEnsembleClassifier(data)
+boss = BOSSEnsembleClassifier(args.prob_name)
 scoreBOSS = boss.eval(train, test)[0]
 # print(data+"; "+scoreBOSS)
 
 res = {
     "prob_name" : args.prob_name,
-    "ll_metric" : ll_metric,
-    "ll_score"  : ll_score, 
+    "ll_metric" : '',
+    "ll_score"  : '', 
     
     "test_score" : scoreBOSS,
     

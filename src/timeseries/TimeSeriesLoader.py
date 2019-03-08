@@ -18,8 +18,8 @@ def uv_load(base_path, dataset_name):
         assert len(train_file) == 1 and len(
             test_file) == 1, "train: {} test: {}".format(train_file, test_file)
 
-        train_raw = pd.read_csv(train_file[0], sep=" ", header=None)
-        test_raw = pd.read_csv(test_file[0], sep=" ", header=None)
+        train_raw = pd.read_csv(train_file[0], sep="\t", header=None)
+        test_raw = pd.read_csv(test_file[0], sep="\t", header=None)
 
         
 
@@ -61,7 +61,7 @@ def uv_load(base_path, dataset_name):
 
 
 def mv_load(dataset_name, useDerivatives):
-    
+
     raise NotImplementedError
 
     try:

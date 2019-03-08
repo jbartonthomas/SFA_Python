@@ -2,6 +2,9 @@ from  src.transformation.BOSS import *
 import progressbar
 from joblib import Parallel, delayed
 
+
+from exline.modeling.metrics import metrics
+
 '''
 The Bag-of-SFA-Symbols Ensemble Classifier as published in
  Schäfer, P.: The boss is concerned with time series classification
@@ -24,10 +27,10 @@ class BOSSEnsembleClassifier():
 
         labels, correctTesting = self.predict(self.model, test)
         test_acc = correctTesting/test["Samples"]
-        import pdb
-        pdb.set_trace()
+
+        f1 = metrics['f1Macro'](labels, test['Labels'])
         
-        return "BOSS Ensemble; "+str(round(scores,3))+"; "+str(round(test_acc,3)), labels
+        return {'f1Macro':f1, 'accuracy':test_acc}
 
 
     def fit(self, train):
@@ -112,7 +115,7 @@ class BOSSEnsembleClassifier():
         p_labels = [0 for i in range(len(label_test))]
         p_correct = 0
 
-        for i in range(len( )):
+        for i in range(len(bag_test)):
             minDistance = 2147483647
             p_labels[i] = 'Nan'
 
