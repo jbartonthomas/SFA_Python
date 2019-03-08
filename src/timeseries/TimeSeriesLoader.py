@@ -3,20 +3,16 @@ from src.timeseries.TimeSeries import TimeSeries
 import os
 from glob import glob
 
-uv_dir = os.path.join(os.getcwd(), "datasets", "univariate")
-mv_dir = os.path.join(os.getcwd(), "datasets", "multivariate")
-
-
-
-def uv_load(dataset_name):
+def uv_load(base_path, dataset_name):
     try:
+
         train = {}
         test = {}
 
         train_file = glob(os.path.join(
-            uv_dir, dataset_name, dataset_name + "_TRAIN*"))
+            base_path, dataset_name, dataset_name + "_TRAIN*"))
         test_file = glob(os.path.join(
-            uv_dir, dataset_name, dataset_name + "_TEST*"))
+            base_path, dataset_name, dataset_name + "_TEST*"))
 
   
         assert len(train_file) == 1 and len(
@@ -65,6 +61,9 @@ def uv_load(dataset_name):
 
 
 def mv_load(dataset_name, useDerivatives):
+    
+    raise NotImplementedError
+
     try:
         train = {}
         test = {}

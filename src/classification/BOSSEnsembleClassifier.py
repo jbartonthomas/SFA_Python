@@ -24,7 +24,9 @@ class BOSSEnsembleClassifier():
 
         labels, correctTesting = self.predict(self.model, test)
         test_acc = correctTesting/test["Samples"]
-
+        import pdb
+        pdb.set_trace()
+        
         return "BOSS Ensemble; "+str(round(scores,3))+"; "+str(round(test_acc,3)), labels
 
 
@@ -81,7 +83,7 @@ class BOSSEnsembleClassifier():
 
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
         with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
-            Parallel(n_jobs=3, backend="threading")(delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in range(len(self.windows)))
+            Parallel(n_jobs=32, backend="threading")(delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in range(len(self.windows)))
         print()
 
         #Find best correctTraining
@@ -110,7 +112,7 @@ class BOSSEnsembleClassifier():
         p_labels = [0 for i in range(len(label_test))]
         p_correct = 0
 
-        for i in range(len(bag_test)):
+        for i in range(len( )):
             minDistance = 2147483647
             p_labels[i] = 'Nan'
 
