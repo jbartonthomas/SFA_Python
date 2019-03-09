@@ -3,6 +3,7 @@ import progressbar
 from joblib import Parallel, delayed
 
 from exline.modeling.metrics import metrics
+from time import time
 
 '''
 The Bag-of-SFA-Symbols Ensemble Classifier as published in
@@ -89,7 +90,7 @@ class BOSSEnsembleClassifier():
 
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
         with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
-            results = Parallel(n_jobs=32)(
+            results = Parallel(n_jobs=32, backend="threading")(
                 delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in
                 range(len(self.windows)))
         print()
@@ -149,6 +150,7 @@ class BOSSEnsembleClassifier():
         Label_Matrix = pd.DataFrame(np.zeros((samples["Samples"], len(models))))
         Label_Vector = pd.DataFrame(np.zeros((samples["Samples"])))
 
+        t0=time()
         for i, model in enumerate(models):
             wordsTest = model[3].createWords(samples)
 
@@ -157,9 +159,10 @@ class BOSSEnsembleClassifier():
 
             for j in range(len(p_labels)):
                 Label_Matrix.loc[j, i] = p_labels[j]
+        print('first loop took: {}s'.format(time()-t0))
 
         unique_labels = np.unique(samples["Labels"])
-
+        t0=time()
         for i in range(len(Label_Vector)):
             maximum = 0
             best = 0
@@ -169,10 +172,13 @@ class BOSSEnsembleClassifier():
                     maximum = d.count(key)
                     best = key
             Label_Vector.iloc[i] = best
+        print('second loop took: {}s'.format(time()-t0))
 
+        t0=time()
         correctTesting = 0
         for i in range(len(Label_Vector)):
             if int(Label_Vector.iloc[i]) == int(samples["Labels"][i]):
                 correctTesting += 1
+        print('third loop took: {}s'.format(time()-t0))
 
         return Label_Vector, correctTesting
