@@ -1,7 +1,6 @@
-from  src.transformation.BOSS import *
+from src.transformation.BOSS import *
 import progressbar
 from joblib import Parallel, delayed
-
 
 from exline.modeling.metrics import metrics
 
@@ -11,9 +10,9 @@ The Bag-of-SFA-Symbols Ensemble Classifier as published in
  in the presence of noise. DMKD (2015)
 '''
 
-class BOSSEnsembleClassifier():
 
-    def __init__(self, d):
+class BOSSEnsembleClassifier():
+    def __init__(self, d, test=False):
         self.NAME = d
         self.factor = 0.96
         self.maxF = 16
@@ -21,17 +20,22 @@ class BOSSEnsembleClassifier():
         self.maxS = 4
         self.MAX_WINDOW_LENGTH = 250
 
+        if test:
+            self.MAX_WINDOW_LENGTH = 25
 
     def eval(self, train, test):
+        print('model fit')
         scores = self.fit(train)
 
+        print('model predict')
+        print('num models: {}'.format(len(self.model)))
         labels, correctTesting = self.predict(self.model, test)
-        test_acc = correctTesting/test["Samples"]
+
+        test_acc = correctTesting / test["Samples"]
 
         f1 = metrics['f1Macro'](labels, test['Labels'])
-        
-        return {'f1Macro':f1, 'accuracy':test_acc}
 
+        return {'f1Macro': f1, 'accuracy': test_acc}
 
     def fit(self, train):
         self.minWindowLength = 10
@@ -51,7 +55,7 @@ class BOSSEnsembleClassifier():
 
             if bestCorrectTraining < correctTesting:
                 bestCorrectTraining = correctTesting
-                bestScore = correctTesting/train["Samples"]
+                bestScore = correctTesting / train["Samples"]
                 self.model = models
 
         return bestScore
@@ -86,10 +90,12 @@ class BOSSEnsembleClassifier():
 
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
         with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
-            Parallel(n_jobs=32, backend="threading")(delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in range(len(self.windows)))
+            Parallel(n_jobs=32)(
+                delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in
+                range(len(self.windows)))
         print()
 
-        #Find best correctTraining
+        # Find best correctTraining
         for i in range(len(self.results)):
             if self.results[i][1] > correctTraining:
                 correctTraining = self.results[i][1]
@@ -102,14 +108,11 @@ class BOSSEnsembleClassifier():
 
         return new_results, correctTraining
 
-
     def BossScore(self, normed, windowLength):
         return ["BOSS Ensemble", 0, 0, normed, windowLength, pd.DataFrame(), 0]
 
-
     def BOSSModel(self, normed, windowLength):
         return self.BossScore(normed, windowLength)
-
 
     def prediction(self, bag_test, bag_train, label_test, label_train, training_check):
         p_labels = [0 for i in range(len(label_test))]
@@ -137,12 +140,10 @@ class BOSSEnsembleClassifier():
                         minDistance = distance
                         p_labels[i] = label_train[j]
 
-
             if label_test[i] == p_labels[i]:
                 p_correct += 1
 
         return p_correct, p_labels
-
 
     def predict(self, models, samples):
         Label_Matrix = pd.DataFrame(np.zeros((samples["Samples"], len(models))))
@@ -175,6 +176,3 @@ class BOSSEnsembleClassifier():
                 correctTesting += 1
 
         return Label_Vector, correctTesting
-
-
-
