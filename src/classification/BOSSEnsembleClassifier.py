@@ -27,8 +27,6 @@ class BOSSEnsembleClassifier():
         print('model fit')
         scores = self.fit(train)
 
-        print('model predict')
-        print('num models: {}'.format(len(self.model)))
         labels, correctTesting = self.predict(self.model, test)
 
         test_acc = correctTesting / test["Samples"]
