@@ -88,7 +88,7 @@ class BOSSEnsembleClassifier():
 
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
         with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
-            Parallel(n_jobs=32)(
+            Parallel(n_jobs=32, backend="threading")(
                 delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in
                 range(len(self.windows)))
         print()
