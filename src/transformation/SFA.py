@@ -1,7 +1,8 @@
 from  src.transformation.MFT import *
 from src.timeseries.TimeSeries import *
 from src.timeseries.TimeSeries import TimeSeries
-import math
+
+
 import pandas as pd
 
 '''
@@ -31,8 +32,8 @@ class SFA():
         self.transformation = None
 
         self.orderLine = []
-        self.bins = pd.DataFrame(np.zeros((wordLength, self.alphabetSize))) + math.inf
-        self.bins.iloc[:, 0] = -math.inf
+        self.bins = np.zeros((wordLength, self.alphabetSize)) + math.inf
+        self.bins[:, 0] = -math.inf
 
 
     def printBins(self):
@@ -172,7 +173,7 @@ class SFA():
         for v in one_approx:
             c = 0
             for C in range(self.bins.shape[1]):
-                if v < self.bins.iloc[i,c]:
+                if v < self.bins[i,c]:
                     break
                 else:
                     c += 1
@@ -196,13 +197,13 @@ class SFA():
                     count += 1
                     condition1 = count > math.ceil(depth * (pos))
                     condition2 = pos == 1
-                    condition3 = self.bins.iloc[i, pos - 1] != self.orderLine[i][j][0]
+                    condition3 = self.bins[i, pos - 1] != self.orderLine[i][j][0]
                     if (condition1) & (condition2 | condition3):
-                        self.bins.iloc[i, pos] = round(self.orderLine[i][j][0],2)
+                        self.bins[i, pos] = round(self.orderLine[i][j][0],2)
                         pos += 1
             except:
                 pass
-        self.bins.iloc[:, 0] = -math.inf
+        self.bins[:, 0] = -math.inf
 
 
     def divideEquiWidthHistogram(self):
@@ -214,10 +215,10 @@ class SFA():
                 intervalWidth = (last - first) / self.alphabetSize
 
                 for c in range(self.alphabetSize-1):
-                    self.bins.iloc[i,c] = intervalWidth * (c + 1) + first
+                    self.bins[i,c] = intervalWidth * (c + 1) + first
             i += 1
 
-        self.bins.iloc[:, 0] = -math.inf
+        self.bins[:, 0] = -math.inf
 
 
     def divideHistogramInformationGain(self):
@@ -226,7 +227,7 @@ class SFA():
             self.findBestSplit(element, 0, len(element), self.alphabetSize)
             self.splitPoints.sort()
             for j in range(len(self.splitPoints)):
-                self.bins.iloc[i, j + 1] = element[self.splitPoints[j]+1][0]
+                self.bins[i, j + 1] = element[self.splitPoints[j]+1][0]
 
 
     def findBestSplit(self, element, start, end, remainingSymbols):
@@ -447,7 +448,7 @@ class SFA():
             i = self.bestValues[a]
             b = 0
             for beta in range(self.bins.shape[1]):
-                if one_approx[i] < self.bins.iloc[i,beta]:
+                if one_approx[i] < self.bins[i,beta]:
                     break
                 else:
                     b += 1
