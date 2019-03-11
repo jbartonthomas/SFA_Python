@@ -67,7 +67,7 @@ class BOSSEnsembleClassifier():
         return bestScore
 
     def fitIndividual(self, args):
-        NormMean, samples, i, bar = args
+        NormMean, samples, i= args
         model = self.BOSSModel(NormMean, self.windows[i])
 
         boss = BOSS(self.maxF, self.maxS, self.windows[i], NormMean)
@@ -89,7 +89,7 @@ class BOSSEnsembleClassifier():
             f += 2
 
         # self.results.append(model)
-        bar.update(i)
+        #bar.update(i)
         return model
 
     def fitEnsemble(self, NormMean, samples):
@@ -97,16 +97,18 @@ class BOSSEnsembleClassifier():
         self.results = []
         from multiprocessing import Pool
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
-        with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
+        #with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
             # results = Parallel(n_jobs=3, backend="threading")( #
             #     delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in
             #     range(len(self.windows)))
 
-            from functools import partial
+        import tqdm
 
-            args = [(NormMean, samples, i, bar) for i in range(len(self.windows))]
-            p = Pool()
-            results = p.map(self.fitIndividual, args)
+        args = [(NormMean, samples, i) for i in range(len(self.windows))]
+        results = []
+        pool = Pool(processes=32)
+        for _ in tqdm.tqdm(pool.imap_unordered(self.fitIndividual, args), total=len(args)):
+            results.append(_)
 
         print()
         self.results = results
