@@ -3,7 +3,7 @@ from  src.transformation.SFA import *
 import pyximport; pyximport.install()
 
 from src.transformation import cBOSS
-
+from multiprocessing import Pool
 
 class BOSS():
 
@@ -21,13 +21,17 @@ class BOSS():
             self.signature.fitWindowing(samples, self.windowLength, self.maxF, self.symbols, self.normMean, True)
             # self.signature.printBins()
 
-        words = []
-        for i in range(samples["Samples"]):
-            sfaWords = self.signature.transformWindowing(samples[i])
+
+        def transform(args):
+            symbols, sample = args
+            sfaWords = self.signature.transformWindowing(sample)
             words_small = []
             for word in sfaWords:
                 words_small.append(self.createWord(word, self.maxF, int2byte(self.symbols)))
-            words.append(words_small)
+            return words_small
+
+        p = Pool(32)
+        words = p.map(transform, [(self.symbols, sample) for sample in samples])
 
         return words
 

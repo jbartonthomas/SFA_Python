@@ -97,10 +97,7 @@ class BOSSEnsembleClassifier():
         self.results = []
         from multiprocessing import Pool
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
-        #with progressbar.ProgressBar(max_value=len(self.windows)) as bar:
-            # results = Parallel(n_jobs=3, backend="threading")( #
-            #     delayed(self.fitIndividual, check_pickle=False)(NormMean, samples, i, bar) for i in
-            #     range(len(self.windows)))
+
 
         import tqdm
 
@@ -139,6 +136,8 @@ class BOSSEnsembleClassifier():
         return p_correct, p_labels
 
     def predict(self, models, samples):
+        #TODO: this is slow
+
         Label_Matrix = pd.DataFrame(np.zeros((samples["Samples"], len(models))))
         Label_Vector = pd.DataFrame(np.zeros((samples["Samples"])))
 
