@@ -57,7 +57,7 @@ def normalizeFT(self, list copy_data, bint NORM_CHECK, int std):
 
 
 def transformWindowing(self, series_full, wordLength):
-    
+
     cdef list series = series_full.data
     cdef int WORDLENGTH = max(self.windowSize, wordLength + self.startOffset) if self.MUSE else min(self.windowSize, wordLength + self.startOffset)
     cdef int t

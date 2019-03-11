@@ -173,18 +173,6 @@ class SFA():
     def quantization(self, one_approx):
         return cSFA.quantization(self.bins, one_approx)
 
-        # i = 0
-        # word = [0 for _ in range(len(one_approx))]
-        # for v in one_approx:
-        #     c = 0
-        #     for C in range(self.bins.shape[1]):
-        #         if v < self.bins[i,c]:
-        #             break
-        #         else:
-        #             c += 1
-        #     word[i] = c-1
-        #     i += 1
-        # return word
 
 
     def divideEquiDepthHistogram(self):
