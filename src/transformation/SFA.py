@@ -2,6 +2,9 @@ from  src.transformation.MFT import *
 from src.timeseries.TimeSeries import *
 from src.timeseries.TimeSeries import TimeSeries
 
+import pyximport; pyximport.install(setup_args={'include_dirs':np.get_include()}, reload_support=True)
+
+from src.transformation import cSFA
 
 import pandas as pd
 
@@ -168,18 +171,20 @@ class SFA():
 
 
     def quantization(self, one_approx):
-        i = 0
-        word = [0 for _ in range(len(one_approx))]
-        for v in one_approx:
-            c = 0
-            for C in range(self.bins.shape[1]):
-                if v < self.bins[i,c]:
-                    break
-                else:
-                    c += 1
-            word[i] = c-1
-            i += 1
-        return word
+        return cSFA.quantization(self.bins, one_approx)
+
+        # i = 0
+        # word = [0 for _ in range(len(one_approx))]
+        # for v in one_approx:
+        #     c = 0
+        #     for C in range(self.bins.shape[1]):
+        #         if v < self.bins[i,c]:
+        #             break
+        #         else:
+        #             c += 1
+        #     word[i] = c-1
+        #     i += 1
+        # return word
 
 
     def divideEquiDepthHistogram(self):

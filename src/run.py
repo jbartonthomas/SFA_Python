@@ -45,6 +45,9 @@ train, test = uv_load(args.base_path, args.prob_name)
 boss = BOSSEnsembleClassifier(args.prob_name)
 scoreBOSS = boss.eval(train, test)
 
+# weasel = WEASELClassifier(args.prob_name)
+# scoreWeasel = weasel.eval(train, test)
+# print(scoreWeasel)
 res = {
     "prob_name": args.prob_name,
     "ll_metric": '',

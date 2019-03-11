@@ -1,5 +1,9 @@
 from  src.transformation.SFA import *
 
+import pyximport; pyximport.install()
+
+from src.transformation import cBOSS
+
 
 class BOSS():
 
@@ -29,25 +33,7 @@ class BOSS():
 
 
     def createWord(self, numbers, maxF, bits):
-        shortsPerLong = int(round(60 / bits))
-        to = min([len(numbers), maxF])
-
-        b = 0
-        s = 0
-        shiftOffset = 1
-        for i in range(s, (min(to, shortsPerLong + s))):
-            shift = 1
-            for j in range(bits):
-                if (numbers[i] & shift) != 0:
-                    b |= shiftOffset
-                shiftOffset <<= 1
-                shift <<= 1
-
-        limit = 2147483647
-        total = 2147483647 + 2147483648
-        while b > limit:
-            b = b - total - 1
-        return b
+        return cBOSS.createWord(numbers, maxF, bits)
 
 
     def createBagOfPattern(self, words, samples, f):
