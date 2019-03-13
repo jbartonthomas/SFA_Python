@@ -20,7 +20,7 @@ def prediction(list bag_test, list bag_train, list label_test, list label_train,
             noMatchDistance =noMatchDistance + bag_test[i][key] ** 2
 
         minDistance = 2147483647
-        for j in range(len(bag_train), schedule='dynamic'):
+        for j in range(len(bag_train)):
             if (bag_train[j] != bag_test[i]) | (training_check):
                 distance = 0
                 for key in bag_test[i].keys():
