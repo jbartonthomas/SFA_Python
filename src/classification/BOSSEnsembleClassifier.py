@@ -71,7 +71,7 @@ class BOSSEnsembleClassifier():
         model = self.BOSSModel(NormMean, self.windows[i])
 
         boss = BOSS(self.maxF, self.maxS, self.windows[i], NormMean)
-        train_words = boss.createWords(samples)
+        train_words = boss.createWords(samples) # can't parallelize createWords for the predict step b/c nested here
 
         f = self.minF
         keep_going = True
@@ -97,7 +97,6 @@ class BOSSEnsembleClassifier():
         self.results = []
         from multiprocessing import Pool
         print(self.NAME + "  Fitting for a norm of " + str(NormMean))
-
 
         import tqdm
 
