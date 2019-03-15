@@ -156,7 +156,7 @@ class BOSSEnsembleClassifier():
 
         t0 = time()
 
-        p = Pool()
+        p = Pool(32)
         labels = p.map(_predict, [(self, samples, m) for m in models])
 
         print('first loop took: {}s'.format(time() - t0))
