@@ -1,10 +1,12 @@
 from src.transformation.BOSS import *
-import progressbar
+
 from joblib import Parallel, delayed
 
 from exline.modeling.metrics import metrics
 from time import time
 import pandas as pd
+
+from multiprocessing import Pool
 
 import pyximport;
 
@@ -17,6 +19,16 @@ The Bag-of-SFA-Symbols Ensemble Classifier as published in
  Schäfer, P.: The boss is concerned with time series classification
  in the presence of noise. DMKD (2015)
 '''
+
+
+def _predict(args):
+    self, samples, model = args
+    wordsTest = model[3].createWords(samples)
+    test_bag = model[3].createBagOfPattern(wordsTest, samples, model[2])
+
+    p_correct, p_labels = self.prediction(test_bag, model[5], samples["Labels"], model[6], True)
+
+    return p_labels
 
 
 class BOSSEnsembleClassifier():
@@ -35,6 +47,7 @@ class BOSSEnsembleClassifier():
         print('model fit')
         scores = self.fit(train)
 
+        # parallel
         labels, correctTesting = self.predict(self.model, test)
 
         test_acc = correctTesting / test["Samples"]
@@ -134,21 +147,25 @@ class BOSSEnsembleClassifier():
 
         return p_correct, p_labels
 
-    def predict(self, models, samples):
-        #TODO: this is slow
 
-        Label_Matrix = pd.DataFrame(np.zeros((samples["Samples"], len(models))))
-        Label_Vector = pd.DataFrame(np.zeros((samples["Samples"])))
+
+    def predict(self, models, samples):
+
+        Label_Matrix = np.zeros((samples["Samples"], len(models)))
+        Label_Vector = np.zeros((samples["Samples"]))
 
         t0 = time()
-        for i, model in enumerate(models):
-            wordsTest = model[3].createWords(samples)
 
-            test_bag = model[3].createBagOfPattern(wordsTest, samples, model[2])
-            p_correct, p_labels = self.prediction(test_bag, model[5], samples["Labels"], model[6], True)
+        p = Pool()
+        labels = p.map(_predict, [(self, samples, m) for m in models])
 
-            for j in range(len(p_labels)):
-                Label_Matrix.loc[j, i] = p_labels[j]
+        print('first loop took: {}s'.format(time() - t0))
+
+        for i in range(len(labels)):
+            for j in range(len(labels[i])):
+                Label_Matrix[j, i] = labels[i][j]
+
+        # samples x models matrix
 
         print('first loop took: {}s'.format(time() - t0))
 
@@ -157,18 +174,25 @@ class BOSSEnsembleClassifier():
         for i in range(len(Label_Vector)):
             maximum = 0
             best = 0
-            d = Label_Matrix.iloc[i, :].tolist()
+            unique, counts = np.unique(Label_Matrix[i, :], return_counts=True)
+            d = dict(zip(unique, counts))
+
             for key in unique_labels:
-                if d.count(key) > maximum:
-                    maximum = d.count(key)
-                    best = key
-            Label_Vector.iloc[i] = best
+                key = float(key)
+                try:
+                    if d[key] > maximum:
+                        maximum = d[key]
+                        best = key
+                except KeyError:
+                    pass
+
+            Label_Vector[i] = best
         print('second loop took: {}s'.format(time() - t0))
 
         t0 = time()
         correctTesting = 0
         for i in range(len(Label_Vector)):
-            if int(Label_Vector.iloc[i]) == int(samples["Labels"][i]):
+            if int(Label_Vector[i]) == int(samples["Labels"][i]):
                 correctTesting += 1
         print('third loop took: {}s'.format(time() - t0))
 
