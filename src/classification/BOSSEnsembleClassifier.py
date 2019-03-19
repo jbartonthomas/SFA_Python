@@ -20,7 +20,9 @@ The Bag-of-SFA-Symbols Ensemble Classifier as published in
  in the presence of noise. DMKD (2015)
 '''
 
+from numba import jit
 
+@jit
 def _predict(args):
     self, samples, model = args
     wordsTest = model[3].createWords(samples)
