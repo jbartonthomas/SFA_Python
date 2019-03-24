@@ -40,7 +40,53 @@ prob_args = {
 }
 
 t = time()
+
 train, test = uv_load(args.base_path, args.prob_name)
+
+import numpy as np
+from sklearn.decomposition import PCA
+
+
+def tss_to_numpy(bag=''):
+    keys = list(bag.keys())
+
+    remove = ['Type', 'Samples', 'Size', 'Labels']
+
+    [keys.remove(r) for r in remove]
+
+    return np.vstack([bag[i].data for i in keys])
+
+
+def numpy_to_tss(bag='', m=''):
+    keys = list(bag.keys())
+
+    remove = ['Type', 'Samples', 'Size', 'Labels']
+    [keys.remove(r) for r in remove]
+
+    for i in keys:
+        print(np.array(bag[i].data).sum())
+        bag[i].data = m[i, :]
+        print(np.array(bag[i].data).sum())
+        print('-')
+
+    return bag
+
+
+def whiten(T_train='', T_test=''):
+    pca = PCA(whiten=True).fit(np.vstack([T_train, T_test]))
+    return pca.transform(T_train), pca.transform(T_test)
+
+
+T_test, T_train = tss_to_numpy(test), tss_to_numpy(train)
+
+T_train, T_test = whiten(T_train, T_test)
+
+test = numpy_to_tss(test, T_test)
+train = numpy_to_tss(train, T_train)
+
+
+
+
 
 boss = BOSSEnsembleClassifier(args.prob_name)
 scoreBOSS = boss.eval(train, test)
