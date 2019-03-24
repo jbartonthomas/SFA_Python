@@ -64,10 +64,7 @@ def numpy_to_tss(bag='', m=''):
     [keys.remove(r) for r in remove]
 
     for i in keys:
-        print(np.array(bag[i].data).sum())
-        bag[i].data = m[i, :]
-        print(np.array(bag[i].data).sum())
-        print('-')
+        bag[i].data = list(m[i, :])
 
     return bag
 
@@ -83,8 +80,6 @@ T_train, T_test = whiten(T_train, T_test)
 
 test = numpy_to_tss(test, T_test)
 train = numpy_to_tss(train, T_train)
-
-
 
 
 
