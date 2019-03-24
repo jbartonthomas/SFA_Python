@@ -117,7 +117,7 @@ class BOSSEnsembleClassifier():
 
         args = [(NormMean, samples, i) for i in range(len(self.windows))]
         results = []
-        pool = Pool(processes=32)
+        pool = Pool(processes=28)
         for _ in tqdm.tqdm(pool.imap_unordered(self.fitIndividual, args), total=len(args)):
             results.append(_)
 
@@ -158,7 +158,7 @@ class BOSSEnsembleClassifier():
 
         t0 = time()
 
-        p = Pool(32)
+        p = Pool(28)
         labels = p.map(_predict, [(self, samples, m) for m in models])
 
         print('first loop took: {}s'.format(time() - t0))
